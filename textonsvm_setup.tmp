@@ -1,0 +1,36 @@
+
+TEXTONSVM_BIN_DIR=$TEXTONSVM_DIR/bin
+
+# where libtiff is installed
+LIBTIFF_DIR=$TEXTONSVM_DIR/tools/libtiff
+
+# where gtk+-2.0 is installed
+GTK_DIR=$TEXTONSVM_DIR/tools/gtk
+
+# where gtkimageview is installed
+GTKIMAGEVIEW_DIR=$TEXTONSVM_DIR/tools/gtkimageview
+
+# where atk is installed
+ATK_DIR=$TEXTONSVM_DIR/tools/atk
+
+# where pango is installed
+PANGO_DIR=$TEXTONSVM_DIR/tools/pango
+
+# where pixman is installed
+PIXMAN_DIR=$TEXTONSVM_DIR/tools/pixman
+
+# where cairo is installed
+CAIRO_DIR=$TEXTONSVM_DIR/tools/cairo
+
+# where glib is installed
+GLIB_DIR=$TEXTONSVM_DIR/tools/glib
+
+
+# DO NOT TOUCH UNLESS YOU KNOW WHAT YOU ARE DOING!!!
+CPPFLAGS="-I$LIBTIFF_DIR/include"
+CFLAGS="-I$LIBTIFF_DIR/include"
+LD_LIBRARY_PATH=$GTKIMAGEVIEW_DIR/lib:$LIBTIFF_DIR/lib:$GTK_DIR/lib:$PANGO_DIR/lib:$GLIB_DIR/lib:$ATK_DIR/lib:$PIXMAN_DIR/lib:$CAIRO_DIR/lib
+PKG_CONFIG_PATH=$GTK_DIR/lib/pkgconfig:$GTKIMAGEVIEW_DIR/lib/pkgconfig:$ATK_DIR/lib/pkgconfig:$PANGO_DIR/lib/pkgconfig:$PIXMAN_DIR/lib/pkgconfig:$CAIRO_DIR/lib/pkgconfig:$GLIB_DIR/lib/pkgconfig
+export CPPFLAGS PKG_CONFIG_PATH LD_LIBRARY_PATH TEXTONSVM_BIN_DIR CFLAGS 
+
+

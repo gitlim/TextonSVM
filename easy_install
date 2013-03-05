@@ -1,0 +1,116 @@
+set -e
+
+TMP_DIR=`readlink -f $0`
+TEXTONSVM_DIR=`dirname $TMP_DIR`
+
+# LIBTIFF
+cd $TEXTONSVM_DIR/3rd
+unzip $TEXTONSVM_DIR/3rd/tiff-3.9.4.zip
+cd tiff-3.9.4
+./configure --prefix=$TEXTONSVM_DIR/tools/libtiff
+make
+make install
+
+# gettext
+#cd $TEXTONSVM_DIR/3rd
+#tar -xvf gettext-0.14.3.tar.gz
+#cd gettext-0.14.3
+#./configure --prefix=$TEXTONSVM_DIR/tools/gettext
+#make
+#make install
+
+# glib
+PKG_CONFIG_PATH=
+LD_LIBRARY_PATH=$TEXTONSVM_DIR/tools/libtiff/lib
+cd $TEXTONSVM_DIR/3rd
+tar -xvf glib-2.21.5.tar.gz
+cd glib-2.21.5
+./configure --prefix=$TEXTONSVM_DIR/tools/glib
+make
+make install
+
+
+# pixman
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$TEXTONSVM_DIR/tools/glib/lib/pkgconfig
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TEXTONSVM_DIR/tools/glib/lib
+PATH=$PATH:$TEXTONSVM_DIR/tools/glib/bin
+export PKG_CONFIG_PATH LD_LIBRARY_PATH PATH
+cd $TEXTONSVM_DIR/3rd
+tar -xvf pixman-0.12.0.tar.gz
+cd pixman-0.12.0
+./configure --prefix=$TEXTONSVM_DIR/tools/pixman --disable-gtk
+make
+make install
+
+# cairo
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$TEXTONSVM_DIR/tools/pixman/lib/pkgconfig
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TEXTONSVM_DIR/tools/pixman/lib
+export PKG_CONFIG_PATH LD_LIBRARY_PATH
+cd $TEXTONSVM_DIR/3rd
+tar -xvf cairo-1.8.0.tar.gz
+cd cairo-1.8.0
+./configure --prefix=$TEXTONSVM_DIR/tools/cairo
+#--disable-png --enable-svg=no
+make
+make install
+
+# pango
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$TEXTONSVM_DIR/tools/cairo/lib/pkgconfig
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TEXTONSVM_DIR/tools/cairo/lib
+export PKG_CONFIG_PATH LD_LIBRARY_PATH
+cd $TEXTONSVM_DIR/3rd
+tar -xvf pango-1.28.0.tar.gz
+cd pango-1.28.0
+./configure --prefix=$TEXTONSVM_DIR/tools/pango
+make
+make install
+
+# atk
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$TEXTONSVM_DIR/tools/pango/lib/pkgconfig
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TEXTONSVM_DIR/tools/pango/lib
+export PKG_CONFIG_PATH LD_LIBRARY_PATH
+cd $TEXTONSVM_DIR/3rd
+tar -xvf $TEXTONSVM_DIR/3rd/atk-1.32.0.tar.bz2
+cd atk-1.32.0
+./configure --prefix=$TEXTONSVM_DIR/tools/atk
+make
+make install
+
+# gtk
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$TEXTONSVM_DIR/tools/atk/lib/pkgconfig
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TEXTONSVM_DIR/tools/atk/lib
+export PKG_CONFIG_PATH LD_LIBRARY_PATH
+cd $TEXTONSVM_DIR/3rd
+tar -xvf $TEXTONSVM_DIR/3rd/gtk+-2.18.0.tar.gz
+cd gtk+-2.18.0
+./configure --prefix=$TEXTONSVM_DIR/tools/gtk --without-libpng
+make
+make install
+
+# gtkimageview
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$TEXTONSVM_DIR/tools/gtk/lib/pkgconfig
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TEXTONSVM_DIR/tools/gtk/lib
+export PKG_CONFIG_PATH LD_LIBRARY_PATH
+cd $TEXTONSVM_DIR/3rd
+tar -xvf $TEXTONSVM_DIR/3rd/gtkimageview-1.6.4.tar.gz
+cd gtkimageview-1.6.4
+./configure --prefix=$TEXTONSVM_DIR/tools/gtkimageview
+make
+make install
+
+
+# textonsvm_setup
+cd $TEXTONSVM_DIR
+echo 'TEXTONSVM_DIR='$TEXTONSVM_DIR >> textonsvm_setup
+
+filename="textonsvm_setup.tmp"
+while read line
+do
+	echo $line >> textonsvm_setup
+done <$filename
+
+# final make
+cd $TEXTONSVM_DIR
+source ./textonsvm_setup
+cd src
+make
