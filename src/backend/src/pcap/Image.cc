@@ -192,6 +192,22 @@ void Image::LoadNormImage(string name) {
     printf("Fild loading error.\n");
     exit(1);
   }
+  int tmp_resize, tmp_X, tmp_Y;
+  fread(&tmp_X, 1, sizeof(unsigned long), fin); X = tmp_X;
+  fread(&tmp_Y, 1, sizeof(unsigned long), fin); Y = tmp_Y;
+  fread(&tmp_resize, 1, sizeof(int), fin);
+  if (resize_factor == -1) {
+    resize_factor = tmp_resize;
+  }
+  img = new matrix<>(X,Y);
+  for (int i = 0; i < X; i++) {
+    for (int j = 0; j < Y; j++) {
+      double tmp;
+      fread(&tmp, 1, sizeof(double), fin);
+      SetImg(i, j, tmp);
+    }
+  }
+  /*
   int tmp_resize;
   fscanf(fin, "%d %d %d\n", &X, &Y, &tmp_resize);
   if (resize_factor == -1) {
@@ -205,17 +221,28 @@ void Image::LoadNormImage(string name) {
       SetImg(i, j, tmp);
     }
   }
+  */
   fclose(fin);
 
   LoadMask(name);
 }
 
 void Image::WriteNormImage(string name, matrix<>& image, int resize_factor) {
-  FILE* fin = fopen((name+".norm").c_str(), "wt");
-  if (fin == NULL) {
+  FILE* fout = fopen((name+".norm").c_str(), "wt");
+  if (fout == NULL) {
     printf("Fild loading error.\n");
     exit(1);
   }
+  fwrite(&(image.size(0)), 1, sizeof(unsigned long), fout);
+  fwrite(&(image.size(1)), 1, sizeof(unsigned long), fout);
+  fwrite(&(resize_factor), 1, sizeof(int), fout);
+  fseek(fout, 1024, SEEK_SET);
+  for (int i = 0; i < (long)image.size(0); i++) {
+    for (int j = 0; j < (long)image.size(1); j++) {
+      fwrite(&(image(i,j)), 1, sizeof(double), fout);
+    }
+  }
+  /*
   fprintf(fin, "%ld %ld %d\n", image.size(0), image.size(1), resize_factor);
   
   for (int i = 0; i < (long)image.size(0); i++) {
@@ -224,7 +251,8 @@ void Image::WriteNormImage(string name, matrix<>& image, int resize_factor) {
     }
     fprintf(fin, "\n");
   }
-  fclose(fin);
+  */
+  fclose(fout);
 }
 
 void Image::Normalize() {

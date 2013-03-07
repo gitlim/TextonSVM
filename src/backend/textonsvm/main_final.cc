@@ -1,20 +1,15 @@
-// TEXTONSVM project (v0.1)
+// TEXTONSVM project (v1.0)
 // UC Berkeley - Computer Vision group
 
 // Author: Joseph J. Lim (lim@csail.mit.edu)
-// Date: 1/8/2012
+// Date: Mar 7th, 2013
 
 // TODO
 // 1. variable globalization (or localization) including SVM_PARAM, DICT
-// 2. consistent filenames
-// 3. const & on all input params
 // 4. check if passing SVM_PARAM globally rather than "loading from parameters.mat" is fine. ( i think it's ok )
 // 5. should we erase input/pieces/orig, cls, det? (probably so.. but when?)
 // 6. check if I initialize every matrix or array correctly
 // 7. mask effect
-// 8. If final best model is already there, what should I do?
-// 10. Flip x and y (from groundtruth centers) - maybe not?
-// 11. Training file has to be selected (the one with the larget number of centers)
 // 12. Change all temporary .img to binary.. it will speed up some
 
 
@@ -203,8 +198,6 @@ void normalize_img(const vector<string>& image_names,
 	for (int x = ii-window_radius; x <= ii+window_radius; x++) {
 	  for (int y = jj-window_radius; y <= jj+window_radius; y++) {
 	    *(patch_ptr + (cou++)) = *(img_ptr + x*h + y);
-	    //	    patch(cou++, 0) = *(img_ptr + x*h + y);
-	    //	    patch(cou++, 0) = image.GetImg(x, y);
 	  }
 	}
 
@@ -214,19 +207,14 @@ void normalize_img(const vector<string>& image_names,
 	  const double tmp = *(patch_ptr+kk) - patch_mean;
 	  patch_std += tmp*tmp; 
 	}
-	//	cout << var(patch) << " =? " << patch_std / cou << endl;
 	patch_std = sqrt(patch_std / (cou - 1));
-	//	double std = sqrt(var(patch));
 
 	if (patch_std < 0.00001) {
-	  //	  cout << "patch_std = " << patch_std << endl;
-	  //	  exit(1);
-	  //	  image_norm(ii,jj) = image.GetImg(ii, jj) - mean(patch);
 	  image_norm(ii,jj) = *(img_ptr + ii*h + jj) - patch_mean;
 	}
-	else
-	  //	  image_norm(ii,jj) = (image.GetImg(ii, jj) - mean(patch)) / std;
+	else {
 	  image_norm(ii,jj) = (*(img_ptr + ii*h + jj) - patch_mean) / patch_std;
+	}
       }
 #if (DEBUG_MODE) 
       cout << ".";
