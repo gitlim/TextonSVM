@@ -233,9 +233,10 @@ void Image::WriteNormImage(string name, matrix<>& image, int resize_factor) {
     printf("Fild loading error.\n");
     exit(1);
   }
-  fwrite(&(image.size(0)), 1, sizeof(unsigned long), fout);
-  fwrite(&(image.size(1)), 1, sizeof(unsigned long), fout);
-  fwrite(&(resize_factor), 1, sizeof(int), fout);
+  unsigned long s0 = image.size(0), s1 = image.size(1);
+  fwrite(&s0, 1, sizeof(unsigned long), fout);
+  fwrite(&s1, 1, sizeof(unsigned long), fout);
+  fwrite(&resize_factor, 1, sizeof(int), fout);
   fseek(fout, 1024, SEEK_SET);
   for (int i = 0; i < (long)image.size(0); i++) {
     for (int j = 0; j < (long)image.size(1); j++) {
