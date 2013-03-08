@@ -192,7 +192,8 @@ void Image::LoadNormImage(string name) {
     printf("Fild loading error.\n");
     exit(1);
   }
-  int tmp_resize, tmp_X, tmp_Y;
+  int tmp_resize;
+  unsigned long tmp_X, tmp_Y;
   fread(&tmp_X, 1, sizeof(unsigned long), fin); X = static_cast<int>(tmp_X);
   fread(&tmp_Y, 1, sizeof(unsigned long), fin); Y = static_cast<int>(tmp_Y);
   fread(&tmp_resize, 1, sizeof(int), fin);
