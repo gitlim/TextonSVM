@@ -193,9 +193,11 @@ void Image::LoadNormImage(string name) {
     exit(1);
   }
   int tmp_resize, tmp_X, tmp_Y;
-  fread(&tmp_X, 1, sizeof(unsigned long), fin); X = tmp_X;
-  fread(&tmp_Y, 1, sizeof(unsigned long), fin); Y = tmp_Y;
+  fread(&tmp_X, 1, sizeof(unsigned long), fin); X = static_cast<int>tmp_X;
+  fread(&tmp_Y, 1, sizeof(unsigned long), fin); Y = static_cast<int>tmp_Y;
   fread(&tmp_resize, 1, sizeof(int), fin);
+
+  fseek(fin, 1024, SEEK_SET);
   if (resize_factor == -1) {
     resize_factor = tmp_resize;
   }
@@ -233,7 +235,7 @@ void Image::WriteNormImage(string name, matrix<>& image, int resize_factor) {
     printf("Fild loading error.\n");
     exit(1);
   }
-  unsigned long s0 = image.size(0), s1 = image.size(1);
+  unsigned long s0 = static_cast<unsigned long>image.size(0), s1 = static_cast<unsigned long>image.size(1);
   fwrite(&s0, 1, sizeof(unsigned long), fout);
   fwrite(&s1, 1, sizeof(unsigned long), fout);
   fwrite(&resize_factor, 1, sizeof(int), fout);
