@@ -6,10 +6,8 @@
 
 // TODO
 // 1. variable globalization (or localization) including SVM_PARAM, DICT
-// 4. check if passing SVM_PARAM globally rather than "loading from parameters.mat" is fine. ( i think it's ok )
-// 5. should we erase input/pieces/orig, cls, det? (probably so.. but when?)
-// 6. check if I initialize every matrix or array correctly
-// 7. mask effect
+// 2. check if passing SVM_PARAM globally rather than "loading from parameters.mat" is fine. ( i think it's ok )
+// 3. mask effect
 // 12. Change all temporary .img to binary.. it will speed up some
 
 
@@ -934,9 +932,6 @@ array<int> load_image(const string& image_name,
 		      const string& work_dir,
 		      matrix<>& image_denoise,
 		      bool cut_range) {
-
-  //  cout << work_dir + image_name << endl;
-
   FILE *fin = fopen((work_dir+image_name).c_str(), "rt");
 
   int width, height;
@@ -984,35 +979,6 @@ array<int> load_denoise_image(const string& image_name,
 			      const string& work_dir,
 			      matrix<>& image_denoise) {
   return load_image(image_name+"_denoise.img", work_dir, image_denoise, true /*cut_range*/);
-  /*
-  FILE *fin = fopen((work_dir+image_name+"_denoise.img").c_str(), "rt");
-
-  int width, height;
-  double tmp;
-  fscanf(fin, "%d\n%d\n", &width, &height);
-  image_denoise = matrix<>(width, height);
-  for (int ii = 0; ii < image_denoise.size(0); ii++) {
-    for (int jj = 0; jj < image_denoise.size(1); jj++) {
-      fscanf(fin, "%lf", &tmp);
-      if (tmp <= -2.0)
-	tmp = -2.0;
-      else if (tmp >= 2.0)
-	tmp = 2.0;
-      
-      image_denoise(ii,jj) = tmp;
-    }
-  }
-  cout << "puhaha" << endl;
-  int n;
-  fscanf(fin, "%d\n", &n);
-  array<int> extra_info(n);
-  for (int i = 0; i < n; i++) {
-    fscanf(fin, "%d\n", &(extra_info[i]));
-  }
-  fclose(fin);
-
-  return extra_info;
-  */
 }
 
 class SVM_PARAM_ABSTRACT {
@@ -1403,84 +1369,6 @@ void compute_textons(const auto_collection<matrix<>, array_list<matrix<> > >& te
       vt_cls[vt_cou++] = linkage[i][1];
     tmp[i] = true;
   }
-  //  cout << vt_cou << endl;
-
-
-  /*
-  height[n-1] = 1;
-  for (int i = n-1; i >= 0; i--) {
-    if (cou[i] == 1) {
-      continue;
-    }
-    height[linkage[i][0]] = height[i] + 1;
-    height[linkage[i][1]] = height[i] + 1;
-  }
-
-  // cluster
-  int leave_element = 0, cluster_height = -1;
-  for (int i = 1; i <= param.param_K*2; i++) {
-    int cou_element = 0;
-    for (int j = 0; j < n; j++) {
-      if (height[j] == i) {
-	if (cou[j] == 1)
-	  leave_element++;
-	else
-	  cou_element++;
-      }
-    } 
-    if (cou_element + leave_element > param.nbcls) {
-      cluster_height = i - 1;
-      break;
-    }
-  }
-
-  int vt_cls[param.nbcls], vt_cou = 0;
-  for (int i = 1; i < cluster_height; i++)
-    for (int j = 0; j < n; j++)
-      if ((height[j] == i) && (cou[j] == 1))
-	vt_cls[vt_cou++] = j;
-  for (int j = 0; j < n; j++)
-    if (height[j] == cluster_height)
-      vt_cls[vt_cou++] = j;
-  */
-
-  /*
-  // Correct version
-  dictionary.textons.reset(new array_list<matrix<> >());
-  for (int i = 0; i < vt_cou; i++) {
-    for (int j = 0; j < n; j++) 
-      tmp[j] = false;
-    tmp[linkage[vt_cls[i]][0]] = true;
-    tmp[linkage[vt_cls[i]][1]] = true;
-
-    for (int j = n-1; j >= 0; j--) {
-      if (tmp[j]) {
-	tmp[linkage[j][0]] = true;
-	tmp[linkage[j][1]] = true;
-      }
-    }
-
-    double min_dist = 99999999;
-    double min_ind = -1;
-    for (int j = 0; j < param.param_K; j++) {
-      if (tmp[j]) {
-	double tot_dist = 0;
-	for (int k = 0; k < param.param_K; k++) {
-	  if (tmp[k]) {
-	    tot_dist += diss(j,k);
-	  }
-	}
-	if (tot_dist < min_dist) {
-	  min_dist = tot_dist;
-	  min_ind = j;
-	}
-      }
-    }
-
-    cout << vt_cls[i] << " " << min_ind << " " << endl;
-    dictionary.textons->add(*(new matrix<>((*textons)[min_ind])));
-  }
-  */
 
   // PABLO VERISON
   double tot_dist[param.param_K];
@@ -1518,7 +1406,6 @@ void compute_textons(const auto_collection<matrix<>, array_list<matrix<> > >& te
 	}
       }
     }    
-    //    cout << min << "  " << min_ind << "    ";
 
 #if (DEBUG_MODE==DETAIL)
     cout << vt_cls[i] << " " << min_ind << " " << endl;
@@ -1729,7 +1616,6 @@ void TEXTONSVM_batch_dict(const SVM_PARAM& param) {
 #if (DEBUG_MODE)
     cout << ".";
 #endif
-    //    cout << "(" << i << "/" << examplars_denoise.size() << ") done." << endl;
   }
 #if (DEBUG_MODE)
   cout << "]";
@@ -2878,14 +2764,6 @@ void calculate_PR_pcap(const matrix<int>& det_centers, const vector<Center>& GT_
     Area_PR += (R2[i] - R2[i-1])*P2[i];
   }
 
-  /*
-  double &Area_PR = evalRes.Area_PR;
-  Area_PR = 0;
-  for (int i = 1; i < 255; i++) { 
-    Area_PR += (R2[i+1] - R2[i]) * (P2[i+1]+P2[i])/2;
-  }
-  */
-
   cout << "calculate_PR_pcap ended" << endl;
 }
 
@@ -3670,13 +3548,6 @@ int main(int argc, const char* argv[]) {
       cout << "Default option" << endl;
 
       /*
-	image_names.push_back("./input/003_Fer");
- 	image_names.push_back("./input/004_Fer");
-	image_names.push_back("./input/005_Fer");
-	image_names.push_back("./input/006_Fer");
-      */
-
-      /*
       image_names.push_back("./input/001_Fer");
       image_names.push_back("./input/002_Fer");
       image_names.push_back("./input/003_Fer");
@@ -3699,13 +3570,7 @@ int main(int argc, const char* argv[]) {
       image_names.push_back("./input/018_Fer");
       image_names.push_back("./input/019_Fer");
       */
-      //      image_names.push_back("./input/test_tmp_j");
-      //      image_names.push_back("./input/test_tmp_j2");
-      image_names.push_back("./input/test_tmp_j5");
       train_image_names.push_back("./input/006_Fer");
-      //      test_image_names.push_back("./input/test_tmp_j");
-      //      test_image_names.push_back("./input/test_tmp_j2");
-      test_image_names.push_back("./input/test_tmp_j5");
       /*
       test_image_names.push_back("./input/001_Fer");
       test_image_names.push_back("./input/002_Fer");

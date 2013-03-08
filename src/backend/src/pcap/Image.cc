@@ -207,7 +207,7 @@ void Image::LoadNormImage(string name) {
       SetImg(i, j, tmp);
     }
   }
-  /*
+  /* old format
   int tmp_resize;
   fscanf(fin, "%d %d %d\n", &X, &Y, &tmp_resize);
   if (resize_factor == -1) {
@@ -243,7 +243,7 @@ void Image::WriteNormImage(string name, matrix<>& image, int resize_factor) {
       fwrite(&(image(i,j)), 1, sizeof(double), fout);
     }
   }
-  /*
+  /* old format
   fprintf(fin, "%ld %ld %d\n", image.size(0), image.size(1), resize_factor);
   
   for (int i = 0; i < (long)image.size(0); i++) {
