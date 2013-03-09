@@ -140,12 +140,10 @@ GdkPixbuf* LoadImage(string filename) {
     return NULL;
   }
 
-  int tmp_x, tmp_y;
-  // TODO: check dimension mataches with nx and ny
-  fscanf(fin, "%d %d %d\n", &tmp_x, &tmp_y, &RES);
-
-  nx = tmp_x;
-  ny = tmp_y;
+  unsigned long tmp_x, tmp_y;
+  fread(&tmp_x, sizeof(unsigned long), fin); nx = static_cast<int>(tmp_x);
+  fread(&tmp_y, sizeof(unsigned long), fin); ny = static_cast<int>(tmp_y);
+  fread(&RES, sizeof(int), fin);
 
   //  if (val_matrix != NULL)
   //    free(val_matrix);
@@ -166,15 +164,15 @@ GdkPixbuf* LoadImage(string filename) {
 
   g_print("%d %d", height, nx);
 
+  fseek(fin, 1024, SEEK_SET);
   int i, j;
-  float tmp;
+  double tmp;
   for (i = 0; i < width; i++) {
     for (j = 0; j < height; j++) {      
-      fscanf(fin, "%f", &tmp);
+      fread(&tmp, 1, sizeof(double), fin);
 
       guchar val = (guchar)((tmp+3)*255/6);
 
-      //      val_matrix[i+j*nx] = tmp;
       pixels[j * stride + i * n_chans] = val;
       pixels[j * stride + i * n_chans+1] = val;
       pixels[j * stride + i * n_chans+2] = val;
