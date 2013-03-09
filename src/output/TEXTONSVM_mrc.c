@@ -141,9 +141,9 @@ GdkPixbuf* LoadImage(string filename) {
   }
 
   unsigned long tmp_x, tmp_y;
-  fread(&tmp_x, sizeof(unsigned long), fin); nx = static_cast<int>(tmp_x);
-  fread(&tmp_y, sizeof(unsigned long), fin); ny = static_cast<int>(tmp_y);
-  fread(&RES, sizeof(int), fin);
+  fread(&tmp_x, 1, sizeof(unsigned long), fin); nx = static_cast<int>(tmp_x);
+  fread(&tmp_y, 1, sizeof(unsigned long), fin); ny = static_cast<int>(tmp_y);
+  fread(&RES, 1, sizeof(int), fin);
 
   //  if (val_matrix != NULL)
   //    free(val_matrix);
